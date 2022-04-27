@@ -18,11 +18,12 @@ def tr2(df):
     df[col] = LabelEncoder().fit_transform(df[col])
   return df
 
-def op_preprocess(sample,scaler):
+def op_preprocess(sample, scaler):
     df = sample.copy()
-    
+    global empids
+    empids = df['Empid'].tolist()
     # Drop single-value columns and id columns
-    df = df.drop(['EmployeeCount', 'EmployeeNumber', 'Over18', 'StandardHours'], axis=1)
+    df = df.drop(['Empid', 'EmployeeCount', 'EmployeeNumber', 'Over18', 'StandardHours'], axis=1)
 
     # Binary-encode binary columns
     df['Gender'] = df['Gender'].replace({'Female': 0, 'Male': 1})
@@ -64,6 +65,7 @@ def pred2(filename):
   pred = svm.predict(df)
   #pred
   result = []
+  em = 0
   for row in range(df.shape[0]):
     for (intercept, coef) in zip(svm.intercept_, svm.coef_):
         s = "y = {0:.3f}".format(intercept)
@@ -79,8 +81,10 @@ def pred2(filename):
         #print(h,mx)
         #print(pred[row],df.columns[mx])
         if(pred[row]==0):
-          result.append("Don't Worry he will be with you")
+          result.append(str(empids[em]) + " will be with you")
+          em+=1
         else:
-          result.append("He may quit due to '"+str(df.columns[mx])+"'")
+          result.append(str(empids[em]) + " may quit due to '"+str(df.columns[mx])+"'")
+          em+=1
 
   return result
